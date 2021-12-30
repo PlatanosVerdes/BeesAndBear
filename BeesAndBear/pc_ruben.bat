@@ -1,7 +1,8 @@
-start /B go run C:\Users\ruben\Documents\Github\BeesAndBear\BeesAndBear\bear.go
-start /B go run C:\Users\ruben\Documents\Github\BeesAndBear\BeesAndBear\bear.go
-start /B go run C:\Users\ruben\Documents\Github\BeesAndBear\BeesAndBear\bear.go
+@echo off
 
-start /B go run C:\Users\ruben\Documents\Github\BeesAndBear\BeesAndBear\bees.go
-start /B go run C:\Users\ruben\Documents\Github\BeesAndBear\BeesAndBear\bees.go
-go run C:\Users\ruben\Documents\Github\BeesAndBear\BeesAndBear\bees.go
+:: BEARS
+start /B go run C:\Users\ruben\Documents\Github\BeesAndBear\BeesAndBear\bear.go Gilgamesh
+
+:: BEES
+start /B go run C:\Users\ruben\Documents\Github\BeesAndBear\BeesAndBear\bees.go Solomon
+go run C:\Users\ruben\Documents\Github\BeesAndBear\BeesAndBear\bees.go Goetia
