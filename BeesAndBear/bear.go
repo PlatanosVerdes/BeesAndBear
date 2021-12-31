@@ -24,7 +24,6 @@ func failOnError(err error, msg string) {
 	}
 }
 
-
 func main() {
 
 	// variables y canales
@@ -45,11 +44,12 @@ func main() {
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 	
-	// Canal Oso -> Abeja (poner permisos para abeja)
+	// Canal Oso - Abeja
 	channel, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
 	defer channel.Close()
 
+	// Fanout del canal
 	err = channel.ExchangeDeclare(
 		"logs",   // name
 		"fanout", // type
@@ -61,7 +61,7 @@ func main() {
 	)
 	failOnError(err, "Failed to declare an exchange")
 
-	// Cola Permisos
+	// Cola Permisos para las abejas
 	qPermits, err := channel.QueueDeclare(
 		"Permisos", // name
 		false,      // durable
@@ -73,7 +73,7 @@ func main() {
 	failOnError(err, "Failed to declare a queue")
 
 
-	// Cola Despertador
+	// Cola Despertador del oso
 	qWakeUp, err := channel.QueueDeclare(
 		"Wake Up",  // name
 		false,   	// durable
@@ -84,7 +84,7 @@ func main() {
 	)
 	failOnError(err, "Failed to declare a queue")
 	
-	// Cola de Alerta
+	// Cola de Alerta a las abejas de tarro lleno
 	qAlert, err := channel.QueueDeclare(
 		"Alert",  		// name
 		false,   		// durable
@@ -95,10 +95,11 @@ func main() {
 	)
 	failOnError(err, "Failed to declare a queue")
 
-	err = ch.QueueBind(
+	//Enlace de cola con canal
+	err = channel.QueueBind(
 		qAlert.Name, // queue name
-		"",     // routing key
-		"logs", // exchange
+		"",     	 // routing key
+		"logs", 	 // exchange
 		false,
 		nil,
 	)
@@ -119,7 +120,6 @@ func main() {
 		for{
 			<- asleep
 			d := <- msgs
-
 			// L'ha despertat l'abella: Maya i menja 2/3
 			if len(d.Body) != 0{
 				log.Printf("%s is woken up to: %s",bearName, d.Body)
@@ -136,8 +136,7 @@ func main() {
 
 			// Produce
 			time.Sleep(velocity * time.Second)
-			pot[j] = bearName + " " +  strconv.Itoa(j+1)
-
+			pot[j] = bearName + " " +  strconv.Itoa(j+1) + "/" + strconv.Itoa(potSize)
 			//Permisos
 			err = channel.Publish(
 				"",     		// exchange
@@ -152,7 +151,7 @@ func main() {
 		}
 
 		//Avisar
-		var message = "lets go"
+		// message := bearName 
 		err = channel.Publish(
 			"",     		// exchange
 			qAlert.Name, 	// routing key
@@ -160,7 +159,7 @@ func main() {
 			false,  		// immediate
 			amqp.Publishing{
 				ContentType: "text/plain",
-				Body:        []byte(message),
+				Body:        []byte(bearName),
 			})
 		failOnError(err, "Failed to publish a message")
 
@@ -175,5 +174,5 @@ func main() {
 	log.Printf("He salido")
 
 	// Purge
-	channel.Close()
+	//channel.Close()
 }
