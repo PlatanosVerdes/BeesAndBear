@@ -2,18 +2,30 @@
 package main
 
 import (
-	"log"
-	"os"
-	"time"
-	"strings"
-	"math/rand"
-	amqp "github.com/streadway/amqp"
+	"log"							 // Prints
+	"os"							 // Get arguments
+	"time"							 // Sleep
+	"strings"						 // Split strings
+	"math/rand"						 // Create random numbers
+
+	amqp "github.com/streadway/amqp" // RabbitMQ
 )
 
 const (
-	maxVelocity 	 = 10 
-	minVelocity 	 = 1 
+	maxVelocity  = 10 
+	minVelocity  = 1 
+	bearColor    = "\033[36m"
+	beeColor	 = "\033[33m"
+	reset 		 = "\033[0m"
 )
+
+func printBee(input string)string{
+	return string(beeColor) + input + string(reset)
+}
+
+func printBear(input string) string{
+	return string(bearColor) + input + string(reset)
+}
 
 func failOnError(err error, msg string) {
 	if err != nil {
@@ -71,7 +83,6 @@ func main() {
 	)
 	failOnError(err, "Failed to declare a queue")
 
-
 	// Cola Despertador del oso
 	qWakeUp, err := channel.QueueDeclare(
 		"Wake Up",  // name
@@ -103,10 +114,10 @@ func main() {
 		nil,
 	)
 	failOnError(err, "Failed to bind a queue")
-
+	
 	alertMsgs, err := channel.Consume(
 		qAlert.Name, // queue
-		"",     // consumer
+		beeName + "Alert",     // consumer
 		true,   	 // auto-ack
 		false,  	 // exclusive
 		false,  	 // no-local
@@ -116,18 +127,19 @@ func main() {
 	failOnError(err, "Failed to register a consumer")
 
 	go func() {
-		for {
+		for{
 			d := <- alertMsgs
-			if len(d.Body) != 0{
-				log.Printf("%s has given me (%s) permission to create honey", d.Body, beeName)
+			if string(d.Body) == "exit"{
+				end <- 1
+			}else{
+				canProduce <- 1
 			}
-			canProduce <- 1
 		}
 	}()
 
 	permitsMsgs, err := channel.Consume(
 		qPermits.Name, // queue
-		beeName,       // consumer
+		beeName + "Permits",       // consumer
 		true,   	   // auto-ack
 		false,  	   // exclusive
 		false,  	   // no-local
@@ -141,12 +153,27 @@ func main() {
 			<- canProduce
 			permit := <- permitsMsgs
 			//L'abella Maya produeix mel 9
-			time.Sleep(time.Duration(velocity) * time.Second)
 			message_body := strings.Split(string(permit.Body), " ") 
-			log.Printf("La abeja " + beeName + " produce la miel " + message_body[1] + " para " + message_body[0])
 			honeyValue := strings.Split(message_body[1], "/")
+			if honeyValue[0] != honeyValue[1]{
+		    	err = channel.Publish(
+		    		"",     		// exchange
+		    		qAlert.Name, 	// routing key
+		    		false,  		// mandatory
+		    		false,  		// immediate
+		    		amqp.Publishing{
+		    			ContentType: "text/plain",
+		    			Body:        []byte(printBee(beeName)),
+		    		})
+		    	failOnError(err, "Failed to publish a message")
+
+			}
+
+			// Producir Miel
+			time.Sleep(time.Duration(velocity) * time.Second)
+			log.Printf(printBee(beeName) + ": produce la miel " + message_body[1] + " para " + printBear(message_body[0]))
+
 			// If maxSize/maxSize -> we're done
-			
 			if honeyValue[0] == honeyValue[1]{
 
 		    	err = channel.Publish(
@@ -159,21 +186,10 @@ func main() {
 		    			Body:        []byte(beeName),
 		    		})
 		    	failOnError(err, "Failed to publish a message")
-
-			}else{
-		    	err = channel.Publish(
-		    		"",     		// exchange
-		    		qAlert.Name, 	// routing key
-		    		false,  		// mandatory
-		    		false,  		// immediate
-		    		amqp.Publishing{
-		    			ContentType: "text/plain",
-		    			Body:        []byte(beeName),
-		    		})
-		    	failOnError(err, "Failed to publish a message")
 			}
 		}
 	}()
-	log.Printf("i'm %s with speed: %d", beeName, velocity)
-	<- end 
+	log.Printf("Esta es la abeja %s con velocidad: %d", printBee(beeName), velocity)
+
+	<- end
 }

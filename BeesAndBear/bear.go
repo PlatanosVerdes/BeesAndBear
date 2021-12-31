@@ -2,20 +2,31 @@
 package main
 
 import (
-	"log"
-	"time"
-	"os"
-	"strconv"
+	"log"							 // Prints
+	"time"							 // Sleep
+	"os"							 // Get arguments
+	"strconv" 						 // Convert strings to int and viceversa
 
-	amqp "github.com/streadway/amqp"
+	amqp "github.com/streadway/amqp" // RabbitMQ
 )
 
 const (
 	potSize     = 5 
-	timesToEat 	= 2
+	timesToEat 	= 3
 	velocity 	= 1
+	bearColor   = "\033[36m"
+	beeColor	= "\033[33m"
+	reset 		= "\033[0m"
 )
 
+// Output coloreado 
+func printBear(input string) string{
+	return string(bearColor) + input + string(reset)
+}
+
+func printBee(input string)string{
+	return string(beeColor) + input + string(reset)
+}
 
 // Funcion de error Rabbit Mq
 func failOnError(err error, msg string) {
@@ -27,8 +38,9 @@ func failOnError(err error, msg string) {
 func main() {
 
 	// variables y canales
-	chanWakeUp := make(chan int)
+	chanWakeUp := make(chan string)
 	asleep := make(chan int)
+	var pot [potSize]string
 
 	// Asignacion de nombre
 	bearName := "Bear"
@@ -106,14 +118,15 @@ func main() {
 	failOnError(err, "Failed to bind a queue")
 
 	msgs, err := channel.Consume(
-	qWakeUp.Name, // queue
-	bearName,     // consumer
-	true,   	  // auto-ack
-	false,  	  // exclusive
-	false,  	  // no-local
-	false,  	  // no-wait
-	nil,    	  // args
+		qWakeUp.Name, // queue
+		bearName,     // consumer
+		true,   	  // auto-ack
+		false,  	  // exclusive
+		false,  	  // no-local
+		false,  	  // no-wait
+		nil,    	  // args
 	)
+	failOnError(err, "Failed to register a consumer")
 	// END RabbitMq init
 
 	go func(){
@@ -121,17 +134,11 @@ func main() {
 			<- asleep
 			d := <- msgs
 			// L'ha despertat l'abella: Maya i menja 2/3
-			if len(d.Body) != 0{
-				log.Printf("%s is woken up to: %s",bearName, d.Body)
-			}
-			chanWakeUp <- 1
+			chanWakeUp <- string(d.Body)
 		}
 	}()
 
-	var pot [potSize]string
-
 	for i := 0; i < timesToEat; i++ { // Times to eat
-		log.Printf(bearName + " wants the pot filled")
 		for j := 0; j < potSize; j++ { // Size of pot
 
 			// Produce
@@ -150,8 +157,9 @@ func main() {
 			failOnError(err, "Failed to publish a message")
 		}
 
+		log.Printf(printBear(bearName) + " se va a dormir")
+
 		//Avisar
-		// message := bearName 
 		err = channel.Publish(
 			"",     		// exchange
 			qAlert.Name, 	// routing key
@@ -159,20 +167,15 @@ func main() {
 			false,  		// immediate
 			amqp.Publishing{
 				ContentType: "text/plain",
-				Body:        []byte(bearName),
+				Body:        []byte(printBear(bearName)),
 			})
 		failOnError(err, "Failed to publish a message")
 
-		log.Printf(bearName + " goes to sleep")
 		asleep <- 1
-		// Esperar hasta que me levanten  
-	
-		// Barrier, wait to get a message :D
-		<- chanWakeUp
-		failOnError(err, "Failed to register a consumer")
-	}
-	log.Printf("He salido")
 
-	// Purge
-	//channel.Close()
+		beeName := <- chanWakeUp
+		log.Printf("A %s le ha levantado %s y come %d/%d",printBear(bearName), printBee(beeName), i+1, timesToEat)
+	}
+	log.Printf("%s esta lleno y rompe el bote de miel !!!", printBear(bearName))
+
 }
