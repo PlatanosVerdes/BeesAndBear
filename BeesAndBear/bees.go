@@ -61,19 +61,7 @@ func main() {
 
 	// Fanout del canal
 	err = channel.ExchangeDeclare(
-		"bees",   // name
-		"fanout", // type
-		true,     // durable
-		false,    // auto-deleted
-		false,    // internal
-		false,    // no-wait
-		nil,      // arguments
-	)
-	failOnError(err, "Failed to declare an exchange")
-
-	// Fanout del canal
-	err = channel.ExchangeDeclare(
-		"bear",   // name
+		"logs",   // name
 		"fanout", // type
 		true,     // durable
 		false,    // auto-deleted
@@ -93,6 +81,17 @@ func main() {
 		nil,   		// arguments
 	)
 	failOnError(err, "Failed to declare a queue")
+
+	// Cola Despertador del oso
+	qWakeUp, err := channel.QueueDeclare(
+		"Wake Up",  // name
+		false,   	// durable
+		false,   	// delete when unused
+		false,   	// exclusive
+		false,   	// no-wait
+		nil,     	// arguments
+	)
+	failOnError(err, "Failed to declare a queue")
 	
 	// Cola de Alerta a las abejas de tarro lleno
 	qAlert, err := channel.QueueDeclare(
@@ -109,7 +108,7 @@ func main() {
 	err = channel.QueueBind(
 		qAlert.Name, // queue name
 		"",     	 // routing key
-		"bees", 	 // exchange
+		"logs", 	 // exchange
 		false,
 		nil,
 	)
@@ -161,8 +160,8 @@ func main() {
 				// If maxSize/maxSize -> we're done
 				if honeyValue[0] == honeyValue[1]{
 		    		err = channel.Publish(
-		    			"bear",    		// exchange
-		    			"", 			// routing key
+		    			"",     		// exchange
+		    			qWakeUp.Name, 	// routing key
 		    			false,  		// mandatory
 		    			false,  		// immediate
 		    			amqp.Publishing{
