@@ -61,7 +61,19 @@ func main() {
 
 	// Fanout del canal
 	err = channel.ExchangeDeclare(
-		"logs",   // name
+		"bear",   // name
+		"fanout", // type
+		true,     // durable
+		false,    // auto-deleted
+		false,    // internal
+		false,    // no-wait
+		nil,      // arguments
+	)
+	failOnError(err, "Failed to declare an exchange")
+
+	// Fanout del canal
+	err = channel.ExchangeDeclare(
+		"bees",   // name
 		"fanout", // type
 		true,     // durable
 		false,    // auto-deleted
@@ -84,15 +96,24 @@ func main() {
 
 	// Cola Despertador del oso
 	qWakeUp, err := channel.QueueDeclare(
-		"Wake Up",  // name
+		"",  // name
 		false,   	// durable
 		false,   	// delete when unused
-		false,   	// exclusive
+		true,   	// exclusive
 		false,   	// no-wait
 		nil,     	// arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 	
+	//Enlace de cola con canal
+	err = channel.QueueBind(
+		qWakeUp.Name, // queue name
+		"",     	 // routing key
+		"bear", 	 // exchange
+		false,
+		nil,
+	)
+	failOnError(err, "Failed to bind a queue")
 
 	msgsWakeUp, err := channel.Consume(
 		qWakeUp.Name, // queue
@@ -135,7 +156,7 @@ func main() {
 	log.Printf("%s esta lleno y rompe el bote de miel !!!", printBear(bearName))
 
 	err = channel.Publish(
-		"logs",     		// exchange
+		"bees",     		// exchange
 		"", 	// routing key
 		false,  		// mandatory
 		false,  		// immediate
