@@ -1,4 +1,7 @@
-//Productor de permisos
+// Para mas información, visita el GitHub: https://github.com/JorgeGonzalezPascual/BeesAndBear
+// Autores: Jorge González Pascual, Rubén Palmer Pérez
+// Video : TODO
+
 package main
 
 import (
