@@ -64,7 +64,7 @@ func main() {
 
 	// Fanout del canal
 	err = channel.ExchangeDeclare(
-		"logs",   // name
+		"bees",   // name
 		"fanout", // type
 		true,     // durable
 		false,    // auto-deleted
@@ -114,7 +114,7 @@ func main() {
 
 			// Produce
 			time.Sleep(velocity * time.Second)
-			pot[j] = bearName + " " +  strconv.Itoa(j+1) + "/" + strconv.Itoa(potSize)
+			pot[j] = bearName + " " +  strconv.Itoa(j+1) + "/" + strconv.Itoa(potSize) // nombreOso x/potSize (ej: Baloo 1/5)
 			//Permisos
 			err = channel.Publish(
 				"",     		// exchange
@@ -138,7 +138,7 @@ func main() {
 	log.Printf("%s esta lleno y rompe el bote de miel !!!", printBear(bearName))
 
 	err = channel.Publish(
-		"logs",     		// exchange
+		"bees",     		// exchange
 		"", 	// routing key
 		false,  		// mandatory
 		false,  		// immediate

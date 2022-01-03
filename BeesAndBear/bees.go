@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	maxVelocity  = 8 
-	minVelocity  = 1 
+	maxVelocity  = 10 
+	minVelocity  = 5  // >= bear.speed * potsize para un mejor output 
 	bearColor    = "\033[36m"
 	beeColor	 = "\033[33m"
 	reset 		 = "\033[0m"
@@ -37,9 +37,6 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
-	// Variables y canales
-	end := make(chan int)
-
 	// Generate random velocity for each bee
 	rand.Seed(time.Now().UnixNano())
 	velocity := minVelocity + rand.Intn(maxVelocity-minVelocity)
@@ -128,13 +125,6 @@ func main() {
 	)
 	failOnError(err, "Failed to register a consumer")
 
-	go func() {
-		for{
-			<- alertMsgs
-			end <- 1
-		}
-	}()
-
 	permitsMsgs, err := channel.Consume(
 		qPermits.Name, 	// queue
 		"",       		// consumer
@@ -151,11 +141,10 @@ func main() {
 			
 			permit := <- permitsMsgs
 		    if len(permit.Body) != 0{ // Fix 
-
+				
 				//L'abella Maya produeix mel 9
 				message_body := strings.Split(string(permit.Body), " ") 
 				honeyValue := strings.Split(message_body[1], "/")
-
 				// Producir Miel
 				time.Sleep(time.Duration(velocity) * time.Second)
 				log.Printf(printBee(beeName) + ": produce la miel " + message_body[1] + " para " + printBear(message_body[0]))
@@ -178,6 +167,6 @@ func main() {
 		}
 	}()
 	log.Printf("Esta es la abeja %s con velocidad: %d", printBee(beeName), velocity)
-	<- end
+	<-alertMsgs 
 	log.Printf("%s: El bote esta roto y me voy", printBee(beeName))
 }
