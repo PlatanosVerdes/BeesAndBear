@@ -61,7 +61,7 @@ func main() {
 
 	// Fanout del canal
 	err = channel.ExchangeDeclare(
-		"logs",   // name
+		"bees",   // name
 		"fanout", // type
 		true,     // durable
 		false,    // auto-deleted
@@ -108,7 +108,7 @@ func main() {
 	err = channel.QueueBind(
 		qAlert.Name, // queue name
 		"",     	 // routing key
-		"logs", 	 // exchange
+		"bees", 	 // exchange
 		false,
 		nil,
 	)
