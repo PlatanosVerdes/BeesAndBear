@@ -5,3 +5,5 @@ En esta practica se nos pide solucionar el problema descripo por Andrews (2000).
 miel en el bote hasta que este está lleno. En este caso, definiremos el tamaño del bote de 10 unidades y fijamos que el oso comerá 3 botes de miel. Una vez el oso ha comido los 3 botes de miel, tanto las abejas como el oso acaban 
 
 La implementación se debe programar usando el lenguaje de [[https://go.dev/][GO]] y usando el servidor de mensajes [[https://www.rabbitmq.com/][Rabibitmq]] para la comunicación de procesos
+
+Para iniciar los procesos, uno puede iniciarlos manualmente (aconsejable uno por terminal) o usando el script *generate_bat.py* proporcionado (puedes usar el parametro -h para saber más sobre el script)
