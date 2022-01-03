@@ -1,7 +1,7 @@
 #+title: Practica 3 Concurrente: El oso y las abejas
 
 #+HTML:<a href="https://www.uib.eu//"><img alt="UIB logo" height="160" align = "left" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Escut_UIB.svg/1058px-Escut_UIB.svg.png"></a>
-En esta practica se nos pide solucionar el problema descripo por Andrews (2000). Hay un solo oso que consume miel de un bote y duerme. Hay N abejas que cargan 1 porción de 
+En esta practica se nos pide solucionar el problema descrito por Andrews (2000). Hay un solo oso que consume miel de un bote y duerme. Hay N abejas que cargan 1 porción de 
 miel en el bote hasta que este está lleno. En este caso, definiremos el tamaño del bote de 10 unidades y fijamos que el oso comerá 3 botes de miel. Una vez el oso ha comido los 3 botes de miel, tanto las abejas como el oso acaban 
 
 La implementación se debe programar usando el lenguaje de [[https://go.dev/][GO]] y usando el servidor de mensajes [[https://www.rabbitmq.com/][Rabibitmq]] para la comunicación de procesos
