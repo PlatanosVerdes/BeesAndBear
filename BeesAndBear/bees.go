@@ -1,6 +1,6 @@
 // Para mas información, visita el GitHub: https://github.com/JorgeGonzalezPascual/BeesAndBear
 // Autores: Jorge González Pascual, Rubén Palmer Pérez
-// Video : TODO
+// Video : https://youtu.be/kbNPbpfEDM4
 
 package main
 
@@ -16,7 +16,7 @@ import (
 
 const (
 	maxVelocity  = 10 
-	minVelocity  = 5  // >= bear.speed * potsize para un mejor output 
+	minVelocity  = 6  // >= bear.speed * potsize para un mejor output 
 	bearColor    = "\033[36m"
 	beeColor	 = "\033[33m"
 	reset 		 = "\033[0m"
