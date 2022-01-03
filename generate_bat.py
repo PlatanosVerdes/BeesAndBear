@@ -13,24 +13,24 @@ def main():
     out = rf'''@echo off
 
 :: BEAR
-start /B go run ''' + os.getcwd() + r'''\bear.go ''' + args.producer + r'''
+start /B go run ''' + os.getcwd() + r'''\BeesAndBear\bear.go ''' + args.producer + r'''
 
 :: BEES
 '''
     for i in range(args.number-1):
         random_name = random.choice(list(open("BEE_NAMES", encoding="utf8"))).split("\n")[0]
-        out += r'''start /B go run ''' + os.getcwd() + r'''\bees.go ''' + random_name + r'''
+        out += r'''start /B go run ''' + os.getcwd() + r'''\BeesAndBear\bees.go ''' + random_name + r'''
 '''
 
     random_name = random.choice(list(open("BEE_NAMES", encoding="utf8"))).split("\n")[0]
-    out += r'''go run ''' + os.getcwd() + r'''\bees.go ''' + random_name
+    out += r'''go run ''' + os.getcwd() + r'''\BeesAndBear\bees.go ''' + random_name
 
-    generator = open(os.getcwd() + f"\{args.output}", "w")
+    generator = open(os.getcwd() + f"\BeesAndBear\{args.output}", "w")
     generator.write(out)
     generator.close()
 
     if args.run:
-        os.system('cmd /k ".\start_program.bat"')
+        os.system(f'cmd /k ".\BeesAndBear\{args.output}"')
 
 if __name__ == "__main__":
     main()

@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	maxVelocity  = 2 
+	maxVelocity  = 8 
 	minVelocity  = 1 
 	bearColor    = "\033[36m"
 	beeColor	 = "\033[33m"
